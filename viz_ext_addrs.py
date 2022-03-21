@@ -1,11 +1,12 @@
-from time import sleep
 import subprocess
 import simplekml
 import threading
 import requests
 import json
+import time
 import re
 import os
+
 
 isActive = True
 user_loc = '39.67528053351819, -104.99906690030674'
@@ -140,15 +141,20 @@ def overwrite_kml():
     kml.save("viz_ext_addrs.kml")
 
 
-def get_input():
+def get_quit_input():
     """Second thread that runs simultaneously to main function thread.
     Allows user to quit and stop the script at any time with 'q'."""
 
-    if input('Enter "q" to quit\n\n').lower().strip() == 'q':
-        global isActive
+    global isActive
+    user_input = input().lower().strip()
+
+    if user_input == 'q':
         isActive = False
         overwrite_kml()
         os._exit(1)
+
+    input_thread = threading.Thread(target=get_quit_input)
+    input_thread.start()
 
 
 def main():
@@ -156,34 +162,39 @@ def main():
     to batch API endpoint, and creating new KML every 5 seconds."""
 
     global isActive
+    local_time = time.strftime('%m/%d/%Y, %H:%M:%S', time.localtime())
+    print('Started at: ', local_time)
+    print('Enter "q" to quit')
+
     while isActive:
         curr_ext_addrs = get_ext_addrs()
-
         response = get_whois_info(curr_ext_addrs)
 
         # Back off for 1 minute if requests returns server connection error
         if response != 'Connection error':
-            print('response.headers: ', response.headers)
+            # print('response.headers: ', response.headers)
             rate_limit = int(response.headers['X-Rl'])
-            print('rate limit: ', rate_limit)
+            # print('rate limit: ', rate_limit)
             back_off = int(response.headers['X-Ttl'])
             make_addrs_kml(response.json())
 
             # Add back off time to next iteration if rate limit exceeded
             if rate_limit > 0:
-                sleep(5.0)
+                time.sleep(5.0)
             else:
                 print('Exceeded API rate limit on last iteration.'
                       'Backing off before next iteration.')
-                sleep(5.0 + back_off)
+                time.sleep(5.0 + back_off)
+                print('Resumed at: ', local_time)
 
         else:
             print('Server connection error. Backing off for 1 minute.')
-            sleep(60.0)
+            time.sleep(60.0)
+            print('Resumed at: ', local_time)
             continue
 
 
-i = threading.Thread(target=get_input)
-i.start()
-m = threading.Thread(target=main)
-m.start()
+input_thread = threading.Thread(target=get_quit_input)
+input_thread.start()
+main_thread = threading.Thread(target=main)
+main_thread.start()
