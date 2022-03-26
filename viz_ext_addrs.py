@@ -2,6 +2,7 @@ import subprocess
 import simplekml
 import threading
 import requests
+import click
 import json
 import time
 import re
@@ -9,9 +10,9 @@ import os
 
 
 isActive = True
-user_loc = '39.67528053351819, -104.99906690030674'
-user_lat = user_loc.split(', ')[0].strip()
-user_lon = user_loc.split(', ')[1].strip()
+default_loc = ('40.000', '-105.000')
+user_lat = None
+user_lon = None
 
 
 def get_ext_addrs():
@@ -142,7 +143,7 @@ def overwrite_kml():
 
 
 def get_quit_input():
-    """Second thread that runs simultaneously to main function thread.
+    """Second thread that runs simultaneously to do_all function thread.
     Allows user to quit and stop the script at any time with 'q'."""
 
     global isActive
@@ -152,12 +153,12 @@ def get_quit_input():
         isActive = False
         overwrite_kml()
         os._exit(1)
+    else:
+        input_thread = threading.Thread(target=get_quit_input)
+        input_thread.start()
 
-    input_thread = threading.Thread(target=get_quit_input)
-    input_thread.start()
 
-
-def main():
+def do_all():
     """Iterates getting external IP addresses, sending POST requests
     to batch API endpoint, and creating new KML every 5 seconds."""
 
@@ -194,7 +195,34 @@ def main():
             continue
 
 
-input_thread = threading.Thread(target=get_quit_input)
-input_thread.start()
-main_thread = threading.Thread(target=main)
-main_thread.start()
+@click.command()
+@click.option('--loc', default=default_loc, nargs=2, type=str,
+              help="User's location in decimal-degree latitude"
+              "-longitude format. Defaults to '40.000, -105.000' "
+              "(Broomfield, CO, USA) if no location is provided.")
+def main(loc):
+    """
+    A tool to visualize near-real time device connections to external
+    IP addresses for situational awareness. Leverages: 
+
+    1) Subprocess (Python module) and netstat (Windows) to get current 
+    device connections.
+
+    2) Ip-api.com which offers a free, no sign-up endpoint for querying 
+    Whois information in bulk.
+
+    3) Google Earth which allows adding a network link layer with auto-
+    refresh options for the linked KML.
+    """
+    global user_lat, user_lon
+    user_lat = loc[0]
+    user_lon = loc[1]
+
+    input_thread = threading.Thread(target=get_quit_input)
+    input_thread.start()
+    do_all_thread = threading.Thread(target=do_all)
+    do_all_thread.start()
+
+
+if __name__ == "__main__":
+    main()
