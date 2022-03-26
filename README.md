@@ -1,6 +1,20 @@
 ## Getting Started
 
-Everything here is written from the perspective of a Windows user. Steps and commands will be slightly different for other environments.
+- Everything here is written from the perspective of a Windows user. Steps and commands will be slightly different for other environments.
+
+
+- Find your location:
+
+  - If you don’t know your current location’s coordinates (decimal degrees) – and why would you? – the easiest way to do this is to go to Google Maps… (<https://www.google.com/maps/place/Denver,+CO/>)
+
+  - And right click anywhere, then click on the first row of the pop up. This will be a latitude-longitude coordinate in decimal degrees. (The script currently only accepts decimal degrees).
+
+    <img src="readmeimages/getcoordinates.png" style="width:6.48397in;height:3.6875in" />
+
+- Get information about the tool:
+  ```bash
+  python viz_ext_addrs.py --help
+  ```
 
 ## Install Anaconda and Dependencies
 
@@ -43,29 +57,11 @@ Everything here is written from the perspective of a Windows user. Steps and com
 
   <https://www.google.com/earth/download/gep/agree.html?hl=en-GB>
 
-
-## Prepare the Script
-
-- Add User Location Coordinates:
-
-  - If you don’t know your current location’s coordinates (decimal degrees) – and why would you? – the easiest way to do this is to go to Google Maps… (<https://www.google.com/maps/place/Denver,+CO/>)
-
-  - And right click anywhere, then click on the first row of the pop up. This will be a latitude-longitude coordinate in decimal degrees. (The script currently only accepts decimal degrees).
-
-    <img src="readmeimages/getcoordinates.png" style="width:6.48397in;height:3.6875in" />
-
-- Then update the ‘user_loc’ variable in the script:
-
-  <img src="readmeimages/updateuserloc.png" style="width:5.57292in;height:0.32302in" alt="Text Description automatically generated" />
-
 ## Prepare the Script via Command Line
 
 *Do this before you connect Google Earth to the KML for the first time as there won’t be a KML file for you to link to. Once you’ve run the script at least once, there will be a KML for you to go back and link / re-link to.*
 
-- Use the Anaconda prompt and change directory to the local folder where you cloned the repo then run the script:
-
-  <img src="readmeimages/clirunscript1.png" style="width:6.5in;height:1.03889in" alt="Graphical user interface, text Description automatically generated" />
-  
+- Change directory to the local folder where you cloned the repo, then run the script:
   ```bash
   python viz_ext_addrs.py
   ```
@@ -84,18 +80,21 @@ Everything here is written from the perspective of a Windows user. Steps and com
 
   *Personally, I would not check the ‘Fly to View on Refresh’ box or else Google Earth will jump around on every refresh - unless you want that.*
 
-- After that, you should see the simple KML we created above with just one point which is the user location you provided:
+- After that, you should see the simple KML we created above with the default user location:
 
   <img src="readmeimages/sampleplainkml.png" style="width:5in;height:3.23718in" alt="Map Description automatically generated" />
 
 - Now you’re ready to use the script!
 
 ## Fire It Up!
-
-- In Anaconda prompt, change directory to where the cloned repo is (if needed again) and run the script:
-
+- Change directory to where the cloned repo is again if needed. And run the script with the default location (Bloomfield, CO, USA):
   ```bash
   python viz_ext_addrs.py
+  ```
+
+- Or specify your location:
+  ```bash
+  python viz_ext_addrs.py --loc 47.617, -122.32
   ```
 
 - You should now see Google Earth start to refresh with new network connections:
