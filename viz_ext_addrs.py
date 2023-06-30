@@ -10,7 +10,7 @@ import os
 
 
 isActive = True
-default_loc = ('40.000', '-105.000')
+default_loc = ()
 user_lat = None
 user_lon = None
 
